@@ -1,0 +1,127 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title> Conocer </title>
+    
+      <!-- Archivos CSS (LOOK AND FEEL) -->
+      <link rel="stylesheet" href="{% static 'inflaciometro/css/lib/materialize/materialize.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'inflaciometro/css/style.css' %}" />
+      <link rel="stylesheet" type="text/css" href="{% static 'inflaciometro/css/linechart.css' %}" />
+
+      <style>
+        html,
+        button,
+        input,
+        Select,
+        body,
+        textarea {
+            color:#000000;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size:1rem;
+            -webkit-font-smoothing:antialiased;
+        }
+
+        #pedro{margin-top: 2.5em;}
+
+        #form_conocer .content_label .label{
+          padding: 2em 0.1em 1em 0.1em;
+        }
+      </style>
+  </head>
+
+  <body>
+    <nav>
+      <div class="nav-wrapper" style= "background:#6ACFF6">
+        <a href="/" class="brand-logo center">
+          <img class="title-image" src="{% static 'inflaciometro/imagenes/logo.png' %}" width="250" height="70" />
+        </a>
+        <!-- <ul id="nav-mobile" class="right hide-on-med-and-down"></ul> -->
+      </div>
+    </nav> 
+
+    <div class="container"> 
+      <div class="row" id='pedro'>
+        <h5><b>
+        Personaliza la inflación: Descubre cómo impacta la inflación en tus
+        consumos para mantener el equilibrio de tu presupuesto y añadir valor a
+        tus finanzas personales.
+        </b></h5>
+        <p>
+        El principal objetivo de la aplicación es permitir al usuario calcular de
+        manera personalizada cuánto de la inflación influye en su bolsillo, medir
+        su economía comparándose con usuarios de características similares,
+        obtener una proyección estimada de un período de tiempo por cada rubro y
+        puede asesorarte de acuerdo a tus posibilidades, necesidades o intereses
+        para contar con información útil y obtener el mayor beneficio de ella.
+        </p> 
+        <p>
+        Necesitamos unos breves datos tuyos para el correcto funcionamiento de la aplicación. <br>
+        Todo lo consignado será utilizado de manera anónima y con fines estadísticos.
+        </p> 
+
+      <!-- <button onclick="getLocation()">Obtener tu ubicacion actual</button>
+      <p id="location"></p>
+      -->
+      </div>
+
+      <div class="row">
+        
+        <!-- Encuesta del principio : IMPORTANTE!!! en action defino a quien se delega el control para que siga ejecutando -->
+        <form action="./index1/" method="post" id='form_conocer'>
+        
+          <div class="col s12 m6 content_label"> 
+            
+            <div class="row label">
+              <div class="col s12">
+                <label for="equation">¿Cuál es tu nivel de gastos mensual?</label>
+                <input type ="number" step="any" id = "gastoTotal" name = "gastoTotal">
+              </div>
+
+              <div class="col s12 m6 content_label">
+                <button class="button1"> Visualizar gastos por categoría</button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="col s12 m6 content_label">
+
+          <!--
+            <div class="row"> <div class="col s12">
+                <button class="button1"> Visualizar mis gastos por categoria </button>
+            </div> </div>
+          -->
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts de Javascript auxiliares -->
+    <script src="{% static 'inflaciometro/js/lib/d3/d3.v3.min.js' %}"></script>
+    <script src="{% static 'inflaciometro/js/lib/jquery/jquery-3.1.1.min.js' %}"></script>
+    
+    <!-- Scripts de Javascript locales -->
+    <script>
+    $(".button1").click(function(){
+      $.ajax({
+        url: '{% url "index1" %}',
+        type: "GET",
+        dataType: "html",
+        success:function(response){},
+        complete:function(){},
+        error:function (xhr, textStatus, thrownError){
+            //alert("error doing something");
+        }
+      });
+    });
+    </script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/variables.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/get_location.js' %}"></script>
+
+  </body>
+</html>

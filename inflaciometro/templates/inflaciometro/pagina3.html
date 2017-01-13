@@ -1,0 +1,163 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title> Conocer </title>
+      <!-- Archivos CSS (LOOK AND FEEL) -->
+      <link rel="stylesheet" href="{% static 'inflaciometro/css/lib/materialize/materialize.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'inflaciometro/css/style.css' %}" />
+      <link rel="stylesheet" type="text/css" href="{% static 'inflaciometro/css/linechart.css' %}" />
+      <link rel="stylesheet" type="text/css" href="{% static 'inflaciometro/css/barchart.css' %}" />
+    
+  </head>
+
+  <body>
+
+    <!-- Contiene todos los divs con los graficos - parte que queda fija - -->
+    <nav id='header2' style="width: 100%; overflow: hidden; position: fixed; top: 0px">
+      <div class="nav-wrapper" style= "background:#6ACFF6">
+        <a href="/" class="brand-logo center">
+          <img class="title-image" src="{% static 'inflaciometro/imagenes/logo.png' %}" width="250" height="70" />
+        </a>
+        <!-- <ul id="nav-mobile" class="right hide-on-med-and-down"></ul> -->
+      </div>
+    </nav> 
+
+    <!-- Parte que queda fija en el margen izquierdo -->
+    <!-- Sliders : gastoXXXX es el gasto inicial segun los ponderadores -->
+      <div class="col s12 m6" style="margin-left: 10px; margin-right: 10px; width: 300px; position: fixed; top: 90px; left;"> 
+        <div>
+        <button class = "button2"> Guardar informacion sobre gastos </button>
+        Total: <output id="gastoTotal"></output>
+        </div>
+        <div id="sidebar"></div>
+      </div>
+
+      <!-- Parte scrolleable, con los graficos -->
+      <div class="col s12 m6" style="margin-left: 350px; position: relative; top: 90px;"> 
+        <div>
+          <br><br>
+          A continuacion, se puede apreciar visualmente como al gastar mas en las categorias de mayor inflacion, afectaria nuestra inflacion personal mas fuertemente que si gastaramos mas en las de menor inflacion.
+
+          <br><br>
+          El area total viene a representar la el total de gastos mensuales personal, si vos gastaras en cada categoria lo que pusiste en los sliders de la izquierda.
+
+        </div>
+        <div id="barchart"></div>
+
+        <div>
+        <a href="{% url 'pagina4' %}"> Pagina 4 </a>
+        </div>
+      </div>
+
+    <!-- Scripts de Javascript auxiliares (EXTERNOS) -->
+    <script src="{% static 'inflaciometro/js/lib/d3/d3.v3.min.js' %}"></script>
+    <script src="{% static 'inflaciometro/js/lib/jquery/jquery-3.1.1.min.js' %}"></script>
+
+    <!-- Defino las variables que van a ser usadas en los sliders (VARIABLES) -->
+    <script type="text/javascript" src="{% static 'inflaciometro/js/variables.js' %}"></script>
+    <script type="text/javascript">
+      // Esto se llama siempre
+      $.ajax({  
+        url: '{% url "get_data" %}',
+        async: false,
+        type: "POST",
+        data: JSON.stringify({
+          gastoTotal: {{ gastoTotal | safe }}
+        }),
+        contentType: 'application/json', 
+        dataType: "json",
+
+        success:function(data){
+          total = data.gastoTotal;
+          gastoTotalInicial = data.gastoTotal;
+          gastoTotal = data.gastoTotal;
+          
+          gastoAlimentos = Number(data.gastoAlimentos);                   alimentos = Number(gastoAlimentos);
+          gastoTransporte = Number(data.gastoTransporte);                 transporte = Number(gastoTransporte);
+          gastoIndumentaria = Number(data.gastoIndumentaria);             indumentaria = Number(gastoIndumentaria);
+          gastoViviendaYServicios = Number(data.gastoViviendaYServicios); viviendayservicios = Number(gastoViviendaYServicios);
+          gastoHogar = Number(data.gastoHogar);                           hogar = Number(gastoHogar);
+          gastoSalud = Number(data.gastoSalud);                           salud = Number(gastoSalud);
+          gastoEsparcimiento = Number(data.gastoEsparcimiento);           esparcimiento = Number(gastoEsparcimiento);
+          gastoEducacion = Number(data.gastoEducacion);                   educacion = Number(gastoEducacion);
+          gastoOtros = Number(data.gastoOtros);                           otros = Number(gastoOtros);
+
+          ponderadores = {
+            "alimentos": data.alimentos,
+            "indumentaria":data.indumentaria,
+            "viviendayservicios":data.viviendayservicios,
+            "hogar":data.hogar,
+            "salud":data.salud,
+            "transporte":data.transporte,
+            "esparcimiento":data.esparcimiento,
+            "educacion":data.educacion,
+            "otros":data.otros
+          }
+        },
+        complete:function(){},
+        error:function (xhr, textStatus, thrownError){
+            console.log("error doing something");
+        }
+      });
+
+      // Esto se llama cuando aprieto el boton "submit valores actuales". Guarda los valores de los sliders
+      $(".button2").click(function(){
+        $.ajax({
+          url: '{% url "add_user_information" %}',
+          type: "POST",
+          data: JSON.stringify({
+            gastoTotal: gastoTotal,
+            gastoEducacion: educacion,
+            gastoTransporte: transporte,
+            gastoEsparcimiento: esparcimiento,
+            gastoAlimentos: alimentos,
+            gastoIndumentaria: indumentaria,
+            gastoHogar: hogar,
+            gastoSalud: salud,
+            gastoOtros: otros,
+            gastoViviendaYServicios: viviendayservicios
+          }),
+          contentType: 'application/json', 
+          dataType: "json",
+          success:function(response){
+            console.log('Cargada info de usuario en BDD');
+          },
+          complete:function(){},
+          error:function (xhr, textStatus, thrownError){
+              console.log("error doing something");
+          }
+        });
+      });
+    </script> 
+
+    <!-- Scripts con los datos en formato JSON -->
+    <script type="text/javascript" src="{% static 'inflaciometro/data/inflacion.json' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/data/ponderadores.json' %}"></script>
+    
+    <script type="text/javascript" src="{% static 'inflaciometro/js/funciones_data.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/init_data.js' %}"></script>
+
+    <!-- Scripts de Javascript locales -->
+    <script type="text/javascript" src="{% static 'inflaciometro/js/funciones_sliders.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/funciones_linechart.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/funciones_multilinechart.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/funciones_donutchart.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/funciones_barchart.js' %}"></script>
+
+    <!-- Inicializo la data y los charts hechos a partir de la misma -->
+    
+    <script type="text/javascript" src="{% static 'inflaciometro/js/update_donutchart.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/update_linechart.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/update_multilinechart.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'inflaciometro/js/init_charts.js' %}"></script>
+
+    <!-- Inicializo el sidebar -->
+    <script type="text/javascript" src="{% static 'inflaciometro/js/init_sidebar.js' %}"></script>
+    <script type="text/javascript" src="{% static 'inflaciometro/js/init_sidebar.js' %}"></script>
+
+  </body>
+</html>
